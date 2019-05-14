@@ -3,6 +3,7 @@
 const program = require('commander')
 const colors = require('colors')
 const init = require('../lib/init')
+const html = require('../lib/html')
 
 program
   .version(require('../package.json').version)
@@ -22,7 +23,7 @@ program
   .description('export git stats to html')
   .option('-o, --out <folder>', 'the dir where to palce the output html files.', './git-chart-output')
   .action((cmd) => {
-    // console.log(cmd.out)
+    html.generate(cmd)
   })
 
 program.parse(process.argv)
