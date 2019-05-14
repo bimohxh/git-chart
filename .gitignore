@@ -1,0 +1,3 @@
+node_modules
+!.keep
+*.config.json
