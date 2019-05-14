@@ -1,0 +1,10 @@
+{
+  "name": "git-chart",
+  "version": "0.0.1",
+  "description": "A command to generate beautyfull git stats chart",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "",
+  "license": "ISC"
+}
