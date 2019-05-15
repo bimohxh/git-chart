@@ -19,7 +19,46 @@ html, body {
   background-color: #FFF;
 }
 
+.table {
+  margin-bottom: 0;
+}
+
 .main {
   max-width: 800px;
   margin: 30px auto;
+}
+
+
+.start-item {
+  color: #9ea0a1
+}
+.startmenu {
+  cursor: pointer;
+}
+.startmenu.active-true {
+  color: red;
+}
+
+.start-item .split {
+  color: #DDD;
+}
+
+.start-item:nth-last-child(1) .split {
+  display: none;
+}
+
+/* 菜单 */
+.menus {
+  display: flex;
+  align-items: center
+}
+
+.menus .menu-item {
+  text-decoration: none;
+  margin-right: 10px;
+  color: #34495e
+}
+
+.menus .menu-item.active-true {
+  color: red;
 }
