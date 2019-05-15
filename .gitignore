@@ -1,5 +1,3 @@
 node_modules
 !.keep
 *.config.json
-gitdata.js
-git-chart-output

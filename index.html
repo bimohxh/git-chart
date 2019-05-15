@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <script src="js/gitdata.js"></script>
+    <script src="js/vue.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+
+  <body>
+    <div id="app" class="container">
+      <div class="card main">
+        <div class="card-header">
+            数据统计
+        </div>
+        <table class="table card-body table-bordered">
+          <tr>
+            <th>开发者</th>
+            <th>提交数</th>
+            <th>新增代码行数</th>
+            <th>删除代码行数</th>
+          </tr>
+          <tr v-for="author in authors">
+            <td>{{author.name}}</td>
+            <td>{{author['commits']}}</td>
+            <td>{{author['+lines']}}</td>
+            <td>{{author['-lines']}}</td>
+          </tr>       
+        </table>        
+      </div>
+    </div>
+    <script src="js/main.js"></script>
+  </body>
+</html>
