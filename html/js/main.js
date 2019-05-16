@@ -9,7 +9,7 @@ const timHelper = {
 // 过滤时间段
 const dayPeriod = {
   all: function () {
-    return []
+    return [0]
   },
   // 昨天
   prevDay: function () {
@@ -45,11 +45,35 @@ const dayPeriod = {
   }
 }
 
+// 折线图
+const drawLine = function (xAxis, yAxis) {
+  let myChart = echarts.init(document.getElementById('echart-codes'))
+  let option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xAxis
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [{
+      data: yAxis,
+      type: 'line',
+      areaStyle: {}
+    }]
+  }
+  myChart.setOption(option)
+}
+
 new Vue({
   el: '#app',
   data: {
     gitdata: window.JSONDATA,
-    view: 'author',
+    view: 'codes',
     views: [
       {
         key: 'author',
@@ -72,8 +96,9 @@ new Vue({
   },
   computed: {
     authors: function () {
+      let _period = dayPeriod[this.startday]()
       let data = this.gitdata.filter(item => {
-        return item.time >= dayPeriod[this.startday]()
+        return item.time >= _period[0] && (_period[1] ? item.time < _period[1] : true)
       }).reduce((result, item) => {
         result[item.author] = result[item.author] || {
           commits: 0,
@@ -101,7 +126,43 @@ new Vue({
     }
   },
   methods: {
+    // 代码量折线图
+    drawChartCodes: function () {
+      let viewFormat = 'YYYY-MM'  // 视图类型
+      let startDay = '2016-02-01' // 开始于哪一天
+
+      let diffView = {
+        'YYYY-MM-DD': 'days',
+        'YYYY-MM': 'months',
+        'YYYY': 'years'
+      }
+
+      let totalNum = 0
+      let _gitdata = this.gitdata
+      
+      // 拿到所有数据
+      let result = {}
+      for (let i = _gitdata.length - 1; i >= 0; i--) {
+        let item = _gitdata[i]
+        let day = moment(item.time * 1000).format(viewFormat)
+        totalNum += (item['+lines'] - item['-lines'])
+        result[day] = totalNum
+      }
+      // 日视图 
+      let datas = {}
+      startDay = moment(startDay).format(viewFormat)
+      let endDay = moment().format(viewFormat)
+      let prevVal = 0 // 最开始时间所在的初始值
+      while(startDay !== endDay) {
+        datas[startDay] = result[startDay] || prevVal
+        prevVal = datas[startDay]
+        startDay = moment(startDay).add(1, diffView[viewFormat]).format(viewFormat)
+      }
+     
+      drawLine(Object.keys(datas), Object.values(datas))
+    }
   },
-  created () {
+  mounted () {
+    this.drawChartCodes()
   }
 })
