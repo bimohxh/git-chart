@@ -1,41 +1,51 @@
 // 时间处理帮助函数
-const timeHelper = {
-  all: function () {
-    return 0
-  },
-  // 昨天
-  prevDay: function () {
-    let yesterday = moment().add(-1, 'days').format('YYYY-MM-DD 00:00:00')
-    return parseInt( new Date(yesterday).getTime() / 1000)
-  },
-
-  // 本周周一
-  thisWeek: function () {
-    let today = (new Date()).getDay()
-    let monday = moment().add(1- today, 'days').format('YYYY-MM-DD 00:00:00')
-    return parseInt( new Date(monday).getTime() / 1000)
-  },
-
-  // 上周周一
-  prevWeek: function () {
-    let today = (new Date()).getDay()
-    let monday = moment().add(1 - 7 - today, 'days').format('YYYY-MM-DD 00:00:00')
-    return parseInt( new Date(monday).getTime() / 1000)
-  },
-  // 本月1号
-  thisMonth: function () {
-    let month = moment().format('YYYY-MM-01 00:00:00')
-    return parseInt(new Date(month).getTime() / 1000)
-  },
-  // 上月1号
-  prevMonth: function () {
-    let month = moment().add(-1, 'months').format('YYYY-MM-01 00:00:00')
-    return parseInt(new Date(month).getTime() / 1000)
+const timHelper = {
+  // 获取秒时间戳
+  toMs: function (time) {
+    return parseInt(new Date(time).getTime() / 1000)
   }
 }
 
+// 过滤时间段
+const dayPeriod = {
+  all: function () {
+    return []
+  },
+  // 昨天
+  prevDay: function () {
+    let from = moment().add(-1, 'days').format('YYYY-MM-DD 00:00:00')
+    let to = moment().format('YYYY-MM-DD 00:00:00')
+    return [timHelper.toMs(from), timHelper.toMs(to)]
+  },
 
-var app = new Vue({
+  // 本周
+  thisWeek: function () {
+    let today = (new Date()).getDay()
+    let from = moment().add(1 - today, 'days').format('YYYY-MM-DD 00:00:00')
+    return [timHelper.toMs(from)]
+  },
+
+  // 上周
+  prevWeek: function () {
+    let today = (new Date()).getDay()
+    let from = moment().add(1 - 7 - today, 'days').format('YYYY-MM-DD 00:00:00')
+    let to = moment().add(1 - today, 'days').format('YYYY-MM-DD 00:00:00')
+    return [timHelper.toMs(from), timHelper.toMs(to)]
+  },
+  // 本月1号
+  thisMonth: function () {
+    let from = moment().format('YYYY-MM-01 00:00:00')
+    return [timHelper.toMs(from)]
+  },
+  // 上月1号
+  prevMonth: function () {
+    let from = moment().add(-1, 'months').format('YYYY-MM-01 00:00:00')
+    let to = moment().format('YYYY-MM-01 00:00:00')
+    return [timHelper.toMs(from), timHelper.toMs(to)]
+  }
+}
+
+new Vue({
   el: '#app',
   data: {
     gitdata: window.JSONDATA,
@@ -63,9 +73,9 @@ var app = new Vue({
   computed: {
     authors: function () {
       let data = this.gitdata.filter(item => {
-       return item.time >= timeHelper[this.startday]()
+        return item.time >= dayPeriod[this.startday]()
       }).reduce((result, item) => {
-        result[item.author] =  result[item.author] || {
+        result[item.author] = result[item.author] || {
           commits: 0,
           '+lines': 0,
           '-lines': 0

@@ -19,30 +19,37 @@
             </div>
           </div>
           <div class="d-flex">
-            <div v-for="(val, key) in daylist" class="start-item">
-              <span :class="'startmenu active-' + (startday === key)" @click="startday = key" >{{val}}</span><span class="ml-1 mr-1 split">/</span>
-            </div>
           </div>
         </div>
         <!-- 开发者贡献 -->
-        <table class="table table-hover card-body table-bordered" v-if="view === 'author'">
-         <thead>
-            <tr>
-              <th>开发者</th>
-              <th>提交数</th>
-              <th>新增代码行数</th>
-              <th>删除代码行数</th>
-            </tr>
-         </thead>
-        <tbody>
-          <tr v-for="author in authors">
-            <td>{{author.name}}</td>
-            <td>{{author['commits']}}</td>
-            <td>{{author['+lines']}}</td>
-            <td>{{author['-lines']}}</td>
-          </tr>     
-        </tbody>  
-        </table>
+        <template v-if="view === 'author'">
+          <div class="card-header d-flex">
+            <div class="flex-grow-1"></div>
+            <div class="d-flex">
+              <div v-for="(val, key) in daylist" class="start-item">
+                <span :class="'startmenu active-' + (startday === key)" @click="startday = key" >{{val}}</span><span class="ml-1 mr-1 split">/</span>
+              </div>
+            </div>
+          </div>
+          <table class="table table-hover card-body table-bordered">
+            <thead>
+                <tr>
+                  <th>开发者</th>
+                  <th>提交数</th>
+                  <th>新增代码行数</th>
+                  <th>删除代码行数</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr v-for="author in authors">
+                <td>{{author.name}}</td>
+                <td>{{author['commits']}}</td>
+                <td>{{author['+lines']}}</td>
+                <td>{{author['-lines']}}</td>
+              </tr>     
+            </tbody>  
+          </table>
+        </template>
         
         <!-- 代码提交量 （日/周/月/年）-->
         <div v-if="view === 'codes'">
