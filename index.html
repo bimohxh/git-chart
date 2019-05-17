@@ -12,25 +12,82 @@
   <body>
     <div id="app" class="container">
       <div class="card main">
-        <div class="card-header">
-            数据统计
+        <div class="card-header d-flex"  v-cloak>
+          <div class="flex-grow-1">
+            <div class="menus">
+              <a href="javascript: void(0)" v-for="item in views" :class="'menu-item active-' + (view === item.key)" @click="switchMenu(item.key)">{{item.name}}</a>
+            </div>
+          </div>
+          <div class="d-flex">
+          </div>
         </div>
-        <table class="table card-body table-bordered">
-          <tr>
-            <th>开发者</th>
-            <th>提交数</th>
-            <th>新增代码行数</th>
-            <th>删除代码行数</th>
-          </tr>
-          <tr v-for="author in authors">
-            <td>{{author.name}}</td>
-            <td>{{author['commits']}}</td>
-            <td>{{author['+lines']}}</td>
-            <td>{{author['-lines']}}</td>
-          </tr>       
-        </table>        
+        <!-- 开发者贡献 -->
+        <template v-if="view === 'author'">
+          <div class="card-header d-flex">
+            <div class="flex-grow-1"></div>
+            <div class="d-flex">
+              <div v-for="(val, key) in daylist" class="start-item">
+                <span :class="'startmenu active-' + (startday === key)" @click="startday = key" >{{val}}</span><span class="ml-1 mr-1 split">/</span>
+              </div>
+            </div>
+          </div>
+          <table class="table table-hover card-body table-bordered">
+            <thead>
+                <tr>
+                  <th>开发者</th>
+                  <th>提交数</th>
+                  <th>新增代码行数</th>
+                  <th>删除代码行数</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr v-for="author in authors">
+                <td>{{author.name}}</td>
+                <td>{{author['commits']}}</td>
+                <td>{{author['+lines']}}</td>
+                <td>{{author['-lines']}}</td>
+              </tr>     
+            </tbody>  
+          </table>
+        </template>
+        
+        <!-- 代码提交量 （日/周/月/年）-->
+        <div v-if="view === 'codes'">
+          <div class="card-header d-flex" style="justify-content: space-between;">
+            <div>
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" :class="'btn btn-sm ' + (codeChart.activeLineView === key ? 'btn-primary' : 'btn-secondary')" @click="setLineView(key)" v-for="(val, key) in codeChart.lineViews">{{val.name}}</button>
+              </div>
+            </div>
+            <div class="btn-group mr-2" role="group">
+              <div class="dropdown">
+                <button @click="codeChart.showAuthors = !codeChart.showAuthors" class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{codeChart.activeAuthor || '全部开发者'}}
+                </button>
+              </div>
+            </div>
+            <div class="btn-group mr-2" role="group">
+              <button type="button" :class="'btn btn-sm ' + (codeChart.activeType === key ? 'btn-primary' : 'btn-secondary')" @click="setDataType(key)" v-for="(val, key) in codeChart.dataTypes">{{val.name}}</button>
+            </div>
+
+            <div class="btn-group" role="group">
+              <button type="button" :class="'btn btn-sm ' + (codeChart.activeTime === key ? 'btn-primary' : 'btn-secondary')" @click="setTimePeriod(key)" v-for="(val, key) in codeChart.timePeriods">{{val.name}}</button>
+            </div>
+          </div>
+          <div class="card-header author-filters" v-show="codeChart.showAuthors">
+            <a href="javascript: void(0)" @click="setLineAuthor(null)">
+              全部
+            </a>
+            <a href="javascript: void(0)" v-for="author in authors" @click="setLineAuthor(author.name)">
+              {{author.name}}
+            </a>
+          </div>
+          <div id="echart-codes" style="width: 100%; height:400px;"></div>
+        </div>
       </div>
     </div>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/moment.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>
