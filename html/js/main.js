@@ -1,3 +1,6 @@
+const moment = window.moment
+const echarts = window.echarts
+
 // 时间处理帮助函数
 const timHelper = {
   // 获取秒时间戳
@@ -9,7 +12,8 @@ const timHelper = {
 // 过滤时间段
 const dayPeriod = {
   all: function () {
-    return [0]
+    let startDay = moment(window.JSONDATA[window.JSONDATA.length - 1].time * 1000).format('YYYY-MM-DD 00:00:00')
+    return [timHelper.toMs(startDay)]
   },
   // 昨天
   prevDay: function () {
@@ -42,6 +46,11 @@ const dayPeriod = {
     let from = moment().add(-1, 'months').format('YYYY-MM-01 00:00:00')
     let to = moment().format('YYYY-MM-01 00:00:00')
     return [timHelper.toMs(from), timHelper.toMs(to)]
+  },
+  // 今年
+  thisYear: function () {
+    let from = moment().format('YYYY-01-01 00:00:00')
+    return [timHelper.toMs(from)]
   }
 }
 
@@ -73,7 +82,7 @@ new Vue({
   el: '#app',
   data: {
     gitdata: window.JSONDATA,
-    view: 'codes',
+    view: 'author',
     views: [
       {
         key: 'author',
@@ -91,8 +100,50 @@ new Vue({
       prevMonth: '上月',
       all: '全部'
     },
-    startday: 'all'// 从哪天开始（时间戳）
-
+    startday: 'all', // 从哪天开始（时间戳）
+    codeChart: {
+      lineViews: {
+        day: {
+          name: '日',
+          format: 'YYYY-MM-DD'
+        },
+        month: {
+          name: '月',
+          format: 'YYYY-MM'
+        },
+        year: {
+          name: '年',
+          format: 'YYYY'
+        }
+      },
+      activeLineView: 'day',
+      timePeriods: {
+        thisWeek: {
+          name: '本周'
+        },
+        thisMonth: {
+          name: '本月'
+        },
+        thisYear: {
+          name: '今年'
+        },
+        all: {
+          name: '全部'
+        }
+      },
+      activeTime: 'thisMonth',
+      dataTypes: {
+        lines: {
+          name: '累计代码行数'
+        },
+        commit: {
+          name: '累计提交数'
+        }
+      },
+      activeType: 'commit',
+      activeAuthor: null,
+      showAuthors: false
+    }
   },
   computed: {
     authors: function () {
@@ -126,11 +177,19 @@ new Vue({
     }
   },
   methods: {
+    switchMenu: function (key) {
+      this.view = key
+      if (this.view === 'codes') {
+        Vue.nextTick(() => {
+          this.drawChartCodes()
+        })
+      }
+    },
+
     // 代码量折线图
     drawChartCodes: function () {
-      let viewFormat = 'YYYY-MM'  // 视图类型
-      let startDay = '2016-02-01' // 开始于哪一天
-
+      let viewFormat = this.codeChart.lineViews[this.codeChart.activeLineView].format // 'YYYY-MM'  // 视图类型
+      let startDay = dayPeriod[this.codeChart.activeTime]()[0] // '2016-02-01' // 开始于哪一天
       let diffView = {
         'YYYY-MM-DD': 'days',
         'YYYY-MM': 'months',
@@ -138,31 +197,60 @@ new Vue({
       }
 
       let totalNum = 0
-      let _gitdata = this.gitdata
-      
+      let _gitdata = this.gitdata.filter(item => {
+        return item.time >= startDay
+      })
+
+      // 过滤作者
+      if (this.codeChart.activeAuthor) {
+        _gitdata = this.gitdata.filter(item => item.author === this.codeChart.activeAuthor)
+      }
+
       // 拿到所有数据
       let result = {}
       for (let i = _gitdata.length - 1; i >= 0; i--) {
         let item = _gitdata[i]
         let day = moment(item.time * 1000).format(viewFormat)
-        totalNum += (item['+lines'] - item['-lines'])
+        if (this.codeChart.activeType === 'lines') {
+          totalNum += item['+lines']
+        } else {
+          totalNum += 1
+        }
         result[day] = totalNum
       }
-      // 日视图 
+      // 视图
       let datas = {}
-      startDay = moment(startDay).format(viewFormat)
+      startDay = moment(startDay * 1000).format(viewFormat)
       let endDay = moment().format(viewFormat)
-      let prevVal = 0 // 最开始时间所在的初始值
-      while(startDay !== endDay) {
-        datas[startDay] = result[startDay] || prevVal
-        prevVal = datas[startDay]
+      let startVal = 0
+
+      while (startDay !== endDay) {
+        datas[startDay] = result[startDay] || startVal
+        startVal = datas[startDay]
         startDay = moment(startDay).add(1, diffView[viewFormat]).format(viewFormat)
       }
-     
+
       drawLine(Object.keys(datas), Object.values(datas))
+    },
+
+    // 设置折线图视图
+    setLineView: function (lineView) {
+      this.codeChart.activeLineView = lineView
+      this.drawChartCodes()
+    },
+    setTimePeriod: function (time) {
+      this.codeChart.activeTime = time
+      this.drawChartCodes()
+    },
+    setDataType: function (type) {
+      this.codeChart.activeType = type
+      this.drawChartCodes()
+    },
+    setLineAuthor: function (author) {
+      this.codeChart.activeAuthor = author
+      this.drawChartCodes()
     }
   },
   mounted () {
-    this.drawChartCodes()
   }
 })

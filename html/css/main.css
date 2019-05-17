@@ -9,6 +9,10 @@ html, body {
   background-color: #f5f7fb;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 .card {
   box-shadow: 0 1px 10px 0 rgba(0,0,0,.05);
   border: 1px solid #e4eaf5;
@@ -21,6 +25,10 @@ html, body {
 
 .table {
   margin-bottom: 0;
+}
+
+.dropdown-menu {
+  display: block
 }
 
 .main {
@@ -61,4 +69,10 @@ html, body {
 
 .menus .menu-item.active-true {
   color: red;
+}
+
+.author-filters a {
+  color: #AAA;
+  text-decoration: none;
+  margin-right: 10px;
 }
