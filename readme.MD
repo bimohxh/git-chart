@@ -4,6 +4,9 @@
 
 A command to generate beautyfull git stats chart.
 
+![](https://raw.githubusercontent.com/bimohxh/git-chart/master/sample.png)
+
+
 ## install
 
 global install git-chart
