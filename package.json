@@ -1,6 +1,6 @@
 {
   "name": "git-chart",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A command to generate beautyfull git stats chart",
   "bin": {
     "git-chart": "./bin/git-chart.js"
