@@ -143,7 +143,30 @@ new Vue({
       activeType: 'commit',
       activeAuthor: null,
       showAuthors: false
-    }
+    },
+    sortby: ['lines', 'desc'],
+    fields: [
+      {
+        name: '开发者',
+        key: 'name'
+      }, {
+        name: '提交数',
+        sort: true,
+        key: 'commits'
+      }, {
+        name: '新增代码行数',
+        sort: true,
+        key: '+lines'
+      }, {
+        name: '删除代码行数',
+        sort: true,
+        key: '-lines'
+      }, {
+        name: '总代码行数',
+        sort: true,
+        key: 'lines'
+      }
+    ]
   },
   computed: {
     authors: function () {
@@ -167,11 +190,13 @@ new Vue({
           name: key,
           commits: data[key].commits,
           '+lines': data[key]['+lines'],
-          '-lines': data[key]['-lines']
+          '-lines': data[key]['-lines'],
+          lines: data[key]['+lines'] - data[key]['-lines']
         })
       }
+
       arr.sort((a, b) => {
-        return b.commits - a.commits
+        return this.sortby[1] === 'asc' ? (a[this.sortby[0]] - b[this.sortby[0]]) : (b[this.sortby[0]] - a[this.sortby[0]])
       })
       return arr
     }
@@ -184,6 +209,11 @@ new Vue({
           this.drawChartCodes()
         })
       }
+    },
+
+    // 列表排序
+    sortdata: function (field, type) {
+      this.sortby = [field.key, type]
     },
 
     // 代码量折线图

@@ -34,10 +34,17 @@
           <table class="table table-hover card-body table-bordered">
             <thead>
                 <tr>
-                  <th>开发者</th>
-                  <th>提交数</th>
-                  <th>新增代码行数</th>
-                  <th>删除代码行数</th>
+                  <th v-for="field in fields">
+                    {{field.name}}
+                    <template v-if="field.sort">
+                      <a :class="'sort-btn active-' + (sortby.join(' ') === field.key + ' asc')" href="javascript: void(0)" @click="sortdata(field, 'asc')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                      </a>
+                      <a :class="'sort-btn active-' + (sortby.join(' ') === field.key + ' desc')" href="javascript: void(0)" @click="sortdata(field, 'desc')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </a>
+                    </template>
+                  </th>
                 </tr>
             </thead>
             <tbody>
@@ -46,6 +53,7 @@
                 <td>{{author['commits']}}</td>
                 <td>{{author['+lines']}}</td>
                 <td>{{author['-lines']}}</td>
+                <td>{{author['lines']}}</td>
               </tr>     
             </tbody>  
           </table>

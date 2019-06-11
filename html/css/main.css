@@ -76,3 +76,36 @@ html, body {
   text-decoration: none;
   margin-right: 10px;
 }
+
+.sort-btn {
+  color: #AAA;
+}
+
+.sort-btn.active-true {
+  color: red;
+}
+
+/* // 列表表格 */
+.table-bordered {
+  border: none;
+}
+.table thead th {
+  border-bottom: none;
+  border-top: none;
+}
+
+.table thead th:first-child {
+  border-left: none;
+}
+
+.table thead th:last-child {
+  border-right: none;
+}
+
+.table tbody td:first-child {
+  border-left: none;
+}
+
+.table tbody td:last-child {
+  border-right: none;
+}
