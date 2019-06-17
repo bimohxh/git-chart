@@ -5,52 +5,53 @@ const echarts = window.echarts
 const timHelper = {
   // 获取秒时间戳
   toMs: function (time) {
-    return parseInt(new Date(time).getTime() / 1000)
+    return parseInt(new Date(time + ' 00:00:00').getTime() / 1000)
   }
 }
 
 // 过滤时间段
 const dayPeriod = {
   all: function () {
-    let startDay = moment(window.JSONDATA[window.JSONDATA.length - 1].time * 1000).format('YYYY-MM-DD 00:00:00')
-    return [timHelper.toMs(startDay)]
+    let startDay = moment(window.JSONDATA[window.JSONDATA.length - 1].time * 1000).format('YYYY-MM-DD')
+    return [startDay]
+    // return [timHelper.toMs(startDay)]
   },
   // 昨天
   prevDay: function () {
-    let from = moment().add(-1, 'days').format('YYYY-MM-DD 00:00:00')
+    let from = moment().add(-1, 'days').format('YYYY-MM-DD')
     let to = moment().format('YYYY-MM-DD 00:00:00')
-    return [timHelper.toMs(from), timHelper.toMs(to)]
+    return [from, to]
   },
 
   // 本周
   thisWeek: function () {
     let today = (new Date()).getDay()
-    let from = moment().add(1 - today, 'days').format('YYYY-MM-DD 00:00:00')
-    return [timHelper.toMs(from)]
+    let from = moment().add(1 - today, 'days').format('YYYY-MM-DD')
+    return [from]
   },
 
   // 上周
   prevWeek: function () {
     let today = (new Date()).getDay()
-    let from = moment().add(1 - 7 - today, 'days').format('YYYY-MM-DD 00:00:00')
-    let to = moment().add(1 - today, 'days').format('YYYY-MM-DD 00:00:00')
-    return [timHelper.toMs(from), timHelper.toMs(to)]
+    let from = moment().add(1 - 7 - today, 'days').format('YYYY-MM-DD')
+    let to = moment().add(1 - today, 'days').format('YYYY-MM-DD')
+    return [from, to]
   },
   // 本月1号
   thisMonth: function () {
-    let from = moment().format('YYYY-MM-01 00:00:00')
-    return [timHelper.toMs(from)]
+    let from = moment().format('YYYY-MM-01')
+    return [from]
   },
   // 上月1号
   prevMonth: function () {
-    let from = moment().add(-1, 'months').format('YYYY-MM-01 00:00:00')
-    let to = moment().format('YYYY-MM-01 00:00:00')
-    return [timHelper.toMs(from), timHelper.toMs(to)]
+    let from = moment().add(-1, 'months').format('YYYY-MM-01')
+    let to = moment().format('YYYY-MM-01')
+    return [from, to]
   },
   // 今年
   thisYear: function () {
-    let from = moment().format('YYYY-01-01 00:00:00')
-    return [timHelper.toMs(from)]
+    let from = moment().format('YYYY-01-01')
+    return [from]
   }
 }
 
@@ -82,6 +83,7 @@ new Vue({
   el: '#app',
   data: {
     gitdata: window.JSONDATA,
+    datepicker: null,
     view: 'author',
     views: [
       {
@@ -101,6 +103,8 @@ new Vue({
       all: '全部'
     },
     startday: 'all', // 从哪天开始（时间戳）
+    startAt: '',
+    endAt: '',
     codeChart: {
       lineViews: {
         day: {
@@ -170,9 +174,14 @@ new Vue({
   },
   computed: {
     authors: function () {
-      let _period = dayPeriod[this.startday]()
+      $('#date1').datepicker('update', this.startAt)
+      $('#date2').datepicker('update', this.endAt)
+      $('.date-range').datepicker('update')
+
+      let startTime = timHelper.toMs(this.startAt)
+      let endTime = timHelper.toMs(this.endAt)
       let data = this.gitdata.filter(item => {
-        return item.time >= _period[0] && (_period[1] ? item.time < _period[1] : true)
+        return item.time >= startTime && (endTime ? item.time < endTime : true)
       }).reduce((result, item) => {
         result[item.author] = result[item.author] || {
           commits: 0,
@@ -219,7 +228,7 @@ new Vue({
     // 代码量折线图
     drawChartCodes: function () {
       let viewFormat = this.codeChart.lineViews[this.codeChart.activeLineView].format // 'YYYY-MM'  // 视图类型
-      let startDay = dayPeriod[this.codeChart.activeTime]()[0] // '2016-02-01' // 开始于哪一天
+      let startDay = timHelper.toMs(dayPeriod[this.codeChart.activeTime]()[0]) // '2016-02-01' // 开始于哪一天
       let diffView = {
         'YYYY-MM-DD': 'days',
         'YYYY-MM': 'months',
@@ -279,8 +288,33 @@ new Vue({
     setLineAuthor: function (author) {
       this.codeChart.activeAuthor = author
       this.drawChartCodes()
+    },
+
+    // 修改时间段
+    changeRange: function (key) {
+      this.startday = key
+      let _period = dayPeriod[this.startday]()
+      this.startAt = _period[0]
+      this.endAt = _period[1] || moment().format('YYYY-MM-DD')
     }
   },
   mounted () {
+    let _self = this
+    this.datepicker = $('.date-range').datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true,
+      language: 'zh-CN',
+      inputs: $('.range')
+    }).on('changeDate', function (e) {
+      let date = e.format('yyyy-mm-dd')
+      if (e.target.id === 'date1') {
+        _self.startAt = date
+      }
+      if (e.target.id === 'date2') {
+        _self.endAt = date
+      }
+    })
+
+    this.changeRange('thisMonth')
   }
 })

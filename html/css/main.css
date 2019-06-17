@@ -109,3 +109,13 @@ html, body {
 .table tbody td:last-child {
   border-right: none;
 }
+
+.date-range {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.dropdown-menu {
+  top: 130px!important;
+}

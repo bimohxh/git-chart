@@ -6,13 +6,14 @@
     <script src="js/gitdata.js"></script>
     <script src="js/vue.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
     <link rel="stylesheet" href="css/main.css">
   </head>
 
   <body>
-    <div id="app" class="container">
+    <div id="app" class="container" v-cloak>
       <div class="card main">
-        <div class="card-header d-flex"  v-cloak>
+        <div class="card-header d-flex">
           <div class="flex-grow-1">
             <div class="menus">
               <a href="javascript: void(0)" v-for="item in views" :class="'menu-item active-' + (view === item.key)" @click="switchMenu(item.key)">{{item.name}}</a>
@@ -22,12 +23,18 @@
           </div>
         </div>
         <!-- 开发者贡献 -->
-        <template v-if="view === 'author'">
+        <div v-show="view === 'author'">
           <div class="card-header d-flex">
             <div class="flex-grow-1"></div>
-            <div class="d-flex">
+            <div class="d-flex" style="align-items: center">
+              <!-- 时间段选择 -->
+              <div class="date-range">
+                <input type="text" id="date1" class="form-control datepicker range" v-model="startAt"/>
+                <span class="ml-2 mr-2"> 至 </span>
+                <input type="text" id="date2" class="form-control datepicker range" v-model="endAt"/>
+              </div>
               <div v-for="(val, key) in daylist" class="start-item">
-                <span :class="'startmenu active-' + (startday === key)" @click="startday = key" >{{val}}</span><span class="ml-1 mr-1 split">/</span>
+                <span :class="'startmenu active-' + (startday === key)" @click="changeRange(key)" >{{val}}</span><span class="ml-1 mr-1 split">/</span>
               </div>
             </div>
           </div>
@@ -57,7 +64,7 @@
               </tr>     
             </tbody>  
           </table>
-        </template>
+        </div>
         
         <!-- 代码提交量 （日/周/月/年）-->
         <div v-if="view === 'codes'">
@@ -96,6 +103,9 @@
     </div>
     <script src="js/echarts.min.js"></script>
     <script src="js/moment.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker.zh-CN.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>
